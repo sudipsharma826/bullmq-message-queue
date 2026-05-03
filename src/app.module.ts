@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BullModule } from '@nestjs/bullmq';
+import { AppWorker } from './app.worker';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [BullModule.forRoot({
@@ -15,13 +17,17 @@ import { BullModule } from '@nestjs/bullmq';
         type: 'exponential',
         delay: 1000,
       },
-      delay: 5000,
+      delay: 1000,
     }
   }),
   BullModule.registerQueue({
     name: 'job-queue',
+  }),
+  ConfigModule.forRoot({
+  isGlobal: true,
+  envFilePath: '.env',
   })],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService,AppWorker],
 })
 export class AppModule {}

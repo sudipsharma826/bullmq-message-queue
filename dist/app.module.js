@@ -11,6 +11,8 @@ const common_1 = require("@nestjs/common");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const bullmq_1 = require("@nestjs/bullmq");
+const app_worker_1 = require("./app.worker");
+const config_1 = require("@nestjs/config");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -27,14 +29,18 @@ exports.AppModule = AppModule = __decorate([
                         type: 'exponential',
                         delay: 1000,
                     },
-                    delay: 5000,
+                    delay: 1000,
                 }
             }),
             bullmq_1.BullModule.registerQueue({
                 name: 'job-queue',
+            }),
+            config_1.ConfigModule.forRoot({
+                isGlobal: true,
+                envFilePath: '.env',
             })],
         controllers: [app_controller_1.AppController],
-        providers: [app_service_1.AppService],
+        providers: [app_service_1.AppService, app_worker_1.AppWorker],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map
