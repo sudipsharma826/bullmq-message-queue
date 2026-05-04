@@ -38,6 +38,7 @@ let AppWorker = class AppWorker extends bullmq_1.WorkerHost {
     }
     onCompleted(job) {
         console.log(`Job ${job.id} completed successfully`);
+        console.log(`Result: ${JSON.stringify(job.attemptsMade)}`);
     }
     onStalled(job) {
         console.warn(`Job ${job.id} has stalled and will be retried`);
@@ -72,6 +73,10 @@ exports.AppWorker = AppWorker = __decorate([
     (0, bullmq_1.Processor)('job-queue', {
         concurrency: 2,
         lockDuration: 30000,
+        limiter: {
+            max: 5,
+            duration: 60000,
+        }
     }),
     __metadata("design:paramtypes", [config_1.ConfigService])
 ], AppWorker);

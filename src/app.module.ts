@@ -18,6 +18,8 @@ import { ConfigModule } from '@nestjs/config';
         delay: 1000,
       },
       delay: 1000,
+      removeOnComplete: 1000,
+      removeOnFail: 500,
     }
   }),
   BullModule.registerQueue({

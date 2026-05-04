@@ -41,9 +41,9 @@ export class AppService {
         type: 'exponential',
         delay: 1000,
       },
-      // delay: 1000, // deplay to process the job after 1 second
-      // removeOnComplete: true,
-      // removeOnFail: true,// Retry the job up to 3 times with an exponential backoff strategy
+      delay: 1000, // deplay to process the job after 1 second
+      removeOnComplete: true, // can assigned the number of job to remove after completion
+      removeOnFail: true,// Retry the job up to 3 times with an exponential backoff strategy and include numberof the jon that to remove after failure , depend of the test handling secanrio.
     });
 
     return {

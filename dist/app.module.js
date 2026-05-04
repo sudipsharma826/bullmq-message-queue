@@ -30,6 +30,8 @@ exports.AppModule = AppModule = __decorate([
                         delay: 1000,
                     },
                     delay: 1000,
+                    removeOnComplete: 1000,
+                    removeOnFail: 500,
                 }
             }),
             bullmq_1.BullModule.registerQueue({

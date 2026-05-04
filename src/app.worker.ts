@@ -4,8 +4,12 @@ import { ConfigService } from '@nestjs/config';
 import { sendLoginNotification } from './common/config/resend';
 
 @Processor('job-queue', {
-  concurrency: 2,
-  lockDuration: 30000,
+  concurrency: 2, // Number of concurrent workers to process jobs
+  lockDuration: 30000, // Time in milliseconds to lock a job for processing (default is 30 seconds)
+  limiter:{
+    max: 5, // Maximum number of jobs to process in a given duration
+    duration: 60000, // Duration in milliseconds for the rate limiter (default is 60 seconds)
+  }
 })
 export class AppWorker extends WorkerHost {
   constructor(private readonly configService: ConfigService) {
@@ -48,6 +52,7 @@ export class AppWorker extends WorkerHost {
   @OnWorkerEvent('completed')
   onCompleted(job: Job) {
     console.log(`Job ${job.id} completed successfully`);
+    console.log(`Result: ${JSON.stringify(job.attemptsMade)}`); // attempt to complete the job
   }
 
   @OnWorkerEvent('stalled')
