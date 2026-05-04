@@ -6,7 +6,7 @@ import { sendLoginNotification } from './common/config/resend';
 @Processor('job-queue', {
   concurrency: 2, // Number of concurrent workers to process jobs
   lockDuration: 30000, // Time in milliseconds to lock a job for processing (default is 30 seconds)
-  limiter:{
+  limiter:{ // Rate Limiter configuration
     max: 5, // Maximum number of jobs to process in a given duration
     duration: 60000, // Duration in milliseconds for the rate limiter (default is 60 seconds)
   }
