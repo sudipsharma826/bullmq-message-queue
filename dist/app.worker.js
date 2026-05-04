@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppWorker = void 0;
 const bullmq_1 = require("@nestjs/bullmq");
+const bullmq_2 = require("bullmq");
 const config_1 = require("@nestjs/config");
 const resend_1 = require("./common/config/resend");
 let AppWorker = class AppWorker extends bullmq_1.WorkerHost {
@@ -26,11 +27,52 @@ let AppWorker = class AppWorker extends bullmq_1.WorkerHost {
         if (!resendEmail) {
             throw new Error('Failed to send login notification email');
         }
+        console.log(`Email sent successfully for job ${job.id}`);
+        return resendEmail;
+    }
+    onActive(job) {
+        console.log(`Job ${job.id} is now active`);
+    }
+    onFailed(job, error) {
+        console.error(`Job ${job.id} failed: ${error.message}`);
+    }
+    onCompleted(job) {
+        console.log(`Job ${job.id} completed successfully`);
+    }
+    onStalled(job) {
+        console.warn(`Job ${job.id} has stalled and will be retried`);
     }
 };
 exports.AppWorker = AppWorker;
+__decorate([
+    (0, bullmq_1.OnWorkerEvent)('active'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [bullmq_2.Job]),
+    __metadata("design:returntype", void 0)
+], AppWorker.prototype, "onActive", null);
+__decorate([
+    (0, bullmq_1.OnWorkerEvent)('failed'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [bullmq_2.Job, Error]),
+    __metadata("design:returntype", void 0)
+], AppWorker.prototype, "onFailed", null);
+__decorate([
+    (0, bullmq_1.OnWorkerEvent)('completed'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [bullmq_2.Job]),
+    __metadata("design:returntype", void 0)
+], AppWorker.prototype, "onCompleted", null);
+__decorate([
+    (0, bullmq_1.OnWorkerEvent)('stalled'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [bullmq_2.Job]),
+    __metadata("design:returntype", void 0)
+], AppWorker.prototype, "onStalled", null);
 exports.AppWorker = AppWorker = __decorate([
-    (0, bullmq_1.Processor)('job-queue', { concurrency: 2, lockDuration: 30000 }),
+    (0, bullmq_1.Processor)('job-queue', {
+        concurrency: 2,
+        lockDuration: 30000,
+    }),
     __metadata("design:paramtypes", [config_1.ConfigService])
 ], AppWorker);
 //# sourceMappingURL=app.worker.js.map
