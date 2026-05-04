@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { BullModule } from '@nestjs/bullmq';
 import { AppWorker } from './app.worker';
 import { ConfigModule } from '@nestjs/config';
+import { AppEventListener } from './app.event.listener';
 
 @Module({
   imports: [BullModule.forRoot({
@@ -30,6 +31,6 @@ import { ConfigModule } from '@nestjs/config';
   envFilePath: '.env',
   })],
   controllers: [AppController],
-  providers: [AppService,AppWorker],
+  providers: [AppService,AppWorker,AppEventListener ],
 })
 export class AppModule {}
