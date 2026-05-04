@@ -84,8 +84,8 @@ let AppWorker = class AppWorker extends bullmq_1.WorkerHost {
             }
             console.log('Log Job Step 1: Data validated');
             await job.updateProgress({ step: 1, percent: 33 });
-            const logEntry = await this.userLogModel.findOneAndUpdate({ email }, { email, lastLogin });
-            console.log('Log Job Step 2: Data saved to database', logEntry);
+            const logEntry = await this.userLogModel.findOneAndUpdate({ email }, { email, lastLogin: new Date(lastLogin) }, { upsert: true, new: true, setDefaultsOnInsert: true });
+            console.log('Log Job Step 2: Data saved to database (upsert)', logEntry);
             await job.updateProgress({ step: 2, percent: 66 });
             console.log('Log Job Step 3: Finalizing job');
             await job.updateProgress({ step: 3, percent: 100 });

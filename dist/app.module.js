@@ -22,28 +22,31 @@ exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            bullmq_1.BullModule.forRoot({
-                connection: {
-                    host: 'localhost',
-                    port: 6379,
-                },
-                defaultJobOptions: {
-                    attempts: 3,
-                    backoff: {
-                        type: 'exponential',
-                        delay: 1000,
-                    },
-                    delay: 1000,
-                    removeOnComplete: 1000,
-                    removeOnFail: 500,
-                },
-            }),
-            bullmq_1.BullModule.registerQueue({
-                name: 'job-queue',
-            }),
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
                 envFilePath: '.env',
+            }),
+            bullmq_1.BullModule.forRootAsync({
+                imports: [config_1.ConfigModule],
+                inject: [config_1.ConfigService],
+                useFactory: (config) => ({
+                    connection: {
+                        url: config.get('REDIS_URL') || 'redis://localhost:6379',
+                    },
+                    defaultJobOptions: {
+                        attempts: 3,
+                        backoff: {
+                            type: 'exponential',
+                            delay: 1000,
+                        },
+                        delay: 1000,
+                        removeOnComplete: 1000,
+                        removeOnFail: 500,
+                    },
+                }),
+            }),
+            bullmq_1.BullModule.registerQueue({
+                name: 'job-queue',
             }),
             mongoose_1.MongooseModule.forRootAsync({
                 inject: [config_1.ConfigService],
@@ -52,7 +55,7 @@ exports.AppModule = AppModule = __decorate([
                 }),
             }),
             mongoose_1.MongooseModule.forFeature([
-                { name: "UserLog", schema: log_model_1.LogSchema },
+                { name: 'UserLog', schema: log_model_1.LogSchema },
             ]),
         ],
         controllers: [app_controller_1.AppController],
