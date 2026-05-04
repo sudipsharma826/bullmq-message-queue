@@ -32,7 +32,7 @@ let AppService = class AppService {
         if (!isMatch) {
             throw new common_1.UnauthorizedException('Invalid email or password');
         }
-        loginQueue.add('email-job', {
+        await loginQueue.add('email-job', {
             email: userData.email,
             lastLogin: userData.lastLogin,
         }, {

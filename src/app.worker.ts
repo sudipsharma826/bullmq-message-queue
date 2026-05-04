@@ -2,43 +2,83 @@ import { Processor, WorkerHost, OnWorkerEvent } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { ConfigService } from '@nestjs/config';
 import { sendLoginNotification } from './common/config/resend';
+import { BadRequestException } from '@nestjs/common/exceptions/bad-request.exception';
 
 @Processor('job-queue', {
-  concurrency: 2, // Number of concurrent workers to process jobs
-  lockDuration: 30000, // Time in milliseconds to lock a job for processing (default is 30 seconds)
-  limiter:{ // Rate Limiter configuration
-    max: 5, // Maximum number of jobs to process in a given duration
-    duration: 60000, // Duration in milliseconds for the rate limiter (default is 60 seconds)
-  }
+  concurrency: 2,
+  lockDuration: 300000,
+  limiter: {
+    max: 5,
+    duration: 60000,
+  },
 })
 export class AppWorker extends WorkerHost {
   constructor(private readonly configService: ConfigService) {
     super();
   }
 
-  // app worker to process the job
   async process(job: Job) {
     console.log(
-      `Processing job with id: ${job.id} and data: ${JSON.stringify(job.data)}`,
+      `Processing job ${job.id} with data: ${JSON.stringify(job.data)}`,
     );
 
+    const totalSteps = 3;
     const { email, lastLogin } = job.data;
 
-    const resendEmail = await sendLoginNotification(
-      email,
-      lastLogin,
-      this.configService,
-    );
+    let result: any;
 
-    if (!resendEmail) {
-      throw new Error('Failed to send login notification email');
+    for (let step = 1; step <= totalSteps; step++) {
+      switch (step) {
+        case 1:
+          //  Step 1: Validate data
+          if (!email || !lastLogin) {
+            throw new BadRequestException ('Invalid job data');
+          }
+          console.log('Step 1: Data validated');
+          break;
+
+        case 2:
+          //  Step 2: Send email
+          result = await sendLoginNotification(
+            email,
+            lastLogin,
+            this.configService,
+          );
+
+          if (!result) {
+            throw new Error ('Email sending failed');
+          }
+
+          console.log('Step 2: Email sent');
+          break;
+
+        case 3:
+          //  Step 3: Finalize
+          console.log('Step 3: Finalizing job');
+          break;
+      }
+
+      //  Update progress
+      const progress = Math.round((step / totalSteps) * 100);
+
+      await job.updateProgress({
+        step,
+        totalSteps,
+        percent: progress,
+      });
+
+      console.log(`Job ${job.id} progress: ${progress}%`);
     }
 
-    console.log(`Email sent successfully for job ${job.id}`);
-
-    return resendEmail;
+    // Return Data
+    return {
+      success: true,
+      email,
+      message: 'Login notification sent successfully',
+    };
   }
-  // Wroker Event Listeners
+
+  // Worker Event Listeners
   @OnWorkerEvent('active')
   onActive(job: Job) {
     console.log(`Job ${job.id} is now active`);
@@ -52,7 +92,7 @@ export class AppWorker extends WorkerHost {
   @OnWorkerEvent('completed')
   onCompleted(job: Job) {
     console.log(`Job ${job.id} completed successfully`);
-    console.log(`Result: ${JSON.stringify(job.attemptsMade)}`); // attempt to complete the job
+    console.log(`Attempts made: ${job.attemptsMade}`);
   }
 
   @OnWorkerEvent('stalled')

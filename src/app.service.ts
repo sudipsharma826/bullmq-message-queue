@@ -31,7 +31,7 @@ export class AppService {
     }
 
     // Add the email to the queue for processing
-    loginQueue.add('email-job', { 
+    await loginQueue.add('email-job', { 
       email: userData.email,
       lastLogin: userData.lastLogin,
      }, {
