@@ -13,34 +13,53 @@ const app_service_1 = require("./app.service");
 const bullmq_1 = require("@nestjs/bullmq");
 const app_worker_1 = require("./app.worker");
 const config_1 = require("@nestjs/config");
+const app_event_listener_1 = require("./app.event.listener");
+const mongoose_1 = require("@nestjs/mongoose");
+const log_model_1 = require("./common/db/log.model");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [bullmq_1.BullModule.forRoot({
-                connection: {
-                    host: 'localhost',
-                    port: 6379,
-                },
-                defaultJobOptions: {
-                    attempts: 3,
-                    backoff: {
-                        type: 'exponential',
-                        delay: 1000,
+        imports: [
+            config_1.ConfigModule.forRoot({
+                isGlobal: true,
+                envFilePath: '.env',
+            }),
+            bullmq_1.BullModule.forRootAsync({
+                imports: [config_1.ConfigModule],
+                inject: [config_1.ConfigService],
+                useFactory: (config) => ({
+                    connection: {
+                        url: config.get('REDIS_URL') || 'redis://localhost:6379',
                     },
-                    delay: 1000,
-                }
+                    defaultJobOptions: {
+                        attempts: 3,
+                        backoff: {
+                            type: 'exponential',
+                            delay: 1000,
+                        },
+                        delay: 1000,
+                        removeOnComplete: 1000,
+                        removeOnFail: 500,
+                    },
+                }),
             }),
             bullmq_1.BullModule.registerQueue({
                 name: 'job-queue',
             }),
-            config_1.ConfigModule.forRoot({
-                isGlobal: true,
-                envFilePath: '.env',
-            })],
+            mongoose_1.MongooseModule.forRootAsync({
+                inject: [config_1.ConfigService],
+                useFactory: (config) => ({
+                    uri: config.get('DATABASE_URL'),
+                }),
+            }),
+            mongoose_1.MongooseModule.forFeature([
+                { name: 'UserLog', schema: log_model_1.LogSchema },
+            ]),
+        ],
         controllers: [app_controller_1.AppController],
-        providers: [app_service_1.AppService, app_worker_1.AppWorker],
+        providers: [app_service_1.AppService, app_worker_1.AppWorker, app_event_listener_1.AppEventListener],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

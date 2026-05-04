@@ -14,23 +14,25 @@ const common_1 = require("@nestjs/common");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 let AppService = class AppService {
     getHello() {
-        return 'Hello World!';
+        return 'Hi BullMQ is up and running!';
     }
     async getLogin(loginData, loginQueue) {
         const { email, password } = loginData;
         const userData = {
-            email: 'sudeepsharma826@gmail.com',
             password: await bcrypt_1.default.hash('bullmq', 10),
             image: 'https://avatars.githubusercontent.com/u/90665217?v=4&size=64',
             isAdmin: 'true',
             lastLogin: new Date().toISOString(),
         };
+        if (!email || !password) {
+            throw new common_1.UnauthorizedException('Email and password are required');
+        }
         const isMatch = await bcrypt_1.default.compare(password, userData.password);
         if (!isMatch) {
             throw new common_1.UnauthorizedException('Invalid email or password');
         }
-        loginQueue.add('email-job', {
-            email: userData.email,
+        await loginQueue.add('email-job', {
+            email: email,
             lastLogin: userData.lastLogin,
         }, {
             attempts: 2,
@@ -38,9 +40,18 @@ let AppService = class AppService {
                 type: 'exponential',
                 delay: 1000,
             },
+            delay: 1000,
+            removeOnComplete: true,
+            removeOnFail: true,
+        });
+        await loginQueue.add('log-job', {
+            email: email,
+            lastLogin: userData.lastLogin,
+        }, {
+            attempts: 1,
         });
         return {
-            email: userData.email,
+            email: email,
             image: userData.image,
             isAdmin: userData.isAdmin,
             lastLogin: userData.lastLogin,
