@@ -30,7 +30,7 @@ let AppWorker = class AppWorker extends bullmq_1.WorkerHost {
 };
 exports.AppWorker = AppWorker;
 exports.AppWorker = AppWorker = __decorate([
-    (0, bullmq_1.Processor)('job-queue'),
+    (0, bullmq_1.Processor)('job-queue', { concurrency: 2, lockDuration: 30000 }),
     __metadata("design:paramtypes", [config_1.ConfigService])
 ], AppWorker);
 //# sourceMappingURL=app.worker.js.map

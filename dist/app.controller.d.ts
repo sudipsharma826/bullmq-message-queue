@@ -6,5 +6,10 @@ export declare class AppController {
     private readonly loginQueue;
     constructor(appService: AppService, loginQueue: Queue);
     getHello(): string;
-    getLogin(loginData: LoginData): void;
+    getLogin(loginData: LoginData): Promise<{
+        email: string;
+        image: string;
+        isAdmin: string;
+        lastLogin: string;
+    }>;
 }

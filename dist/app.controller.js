@@ -27,8 +27,10 @@ let AppController = class AppController {
     getHello() {
         return this.appService.getHello();
     }
-    getLogin(loginData) {
-        this.appService.getLogin(loginData, this.loginQueue);
+    async getLogin(loginData) {
+        const data = await this.appService.getLogin(loginData, this.loginQueue);
+        console.log(data);
+        return data;
     }
 };
 exports.AppController = AppController;
@@ -43,7 +45,7 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], AppController.prototype, "getLogin", null);
 exports.AppController = AppController = __decorate([
     (0, common_1.Controller)(),

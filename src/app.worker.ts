@@ -3,7 +3,7 @@ import { Job } from "bullmq";
 import { ConfigService } from "@nestjs/config";
 import { sendLoginNotification } from "./common/config/resend";
 
-@Processor('job-queue')
+@Processor('job-queue',{concurrency:2,lockDuration: 30000})
 export class AppWorker extends WorkerHost{
     constructor(private readonly configService: ConfigService) {
         super();

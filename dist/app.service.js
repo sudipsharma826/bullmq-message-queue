@@ -25,6 +25,9 @@ let AppService = class AppService {
             isAdmin: 'true',
             lastLogin: new Date().toISOString(),
         };
+        if (!email || !password) {
+            throw new common_1.UnauthorizedException('Email and password are required');
+        }
         const isMatch = await bcrypt_1.default.compare(password, userData.password);
         if (!isMatch) {
             throw new common_1.UnauthorizedException('Invalid email or password');

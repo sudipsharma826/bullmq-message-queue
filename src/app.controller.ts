@@ -15,7 +15,9 @@ export class AppController {
     return this.appService.getHello();
   }
   @Post("login")
-  getLogin(@Body() loginData: LoginData): void {
-    this.appService.getLogin(loginData, this.loginQueue);
+  async getLogin(@Body() loginData: LoginData) {
+    const data = await this.appService.getLogin(loginData, this.loginQueue);
+    console.log(data)
+    return data;
   }
 }

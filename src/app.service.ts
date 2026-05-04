@@ -19,6 +19,11 @@ export class AppService {
       lastLogin: new Date().toISOString(),
     };
 
+    // Check the email and password
+    if(!email || !password) {
+      throw new UnauthorizedException('Email and password are required');
+    }
+
     // Check if the email and password match
     const isMatch = await bcrypt.compare(password, userData.password);
     if (!isMatch) {
