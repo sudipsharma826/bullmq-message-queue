@@ -5,7 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { sendLoginNotification } from './common/config/resend';
 import { BadRequestException } from '@nestjs/common/exceptions/bad-request.exception';
-import { Log, LogDocument } from './common/db/log.model';
+import { LogDocument } from './common/db/log.model';
 
 
 @Processor('job-queue', {
@@ -114,9 +114,10 @@ export class AppWorker extends WorkerHost {
       // Step 2: Save to database
       const logEntry = await this.userLogModel.findOneAndUpdate(
         { email },
-        { email, lastLogin },
+        { email, lastLogin: new Date(lastLogin) },
+        { upsert: true, new: true, setDefaultsOnInsert: true },
       );
-      console.log('Log Job Step 2: Data saved to database', logEntry);
+      console.log('Log Job Step 2: Data saved to database (upsert)', logEntry);
       await job.updateProgress({ step: 2, percent: 66 });
 
       // Step 3: Finalize

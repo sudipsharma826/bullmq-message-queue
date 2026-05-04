@@ -6,13 +6,12 @@ import { Queue } from 'bullmq';
 @Injectable()
 export class AppService {
   getHello(): string {
-    return 'Hello World!';
+    return 'Hi BullMQ is up and running!';
   }
   async getLogin(loginData: LoginData, loginQueue: Queue) {
     const { email, password } = loginData;
     // fake login  data
     const userData = {
-      email: 'sudeepsharma826@gmail.com',
       password: await bcrypt.hash('bullmq', 10),
       image: 'https://avatars.githubusercontent.com/u/90665217?v=4&size=64',
       isAdmin: 'true',
@@ -32,7 +31,7 @@ export class AppService {
 
     // Add the email to the queue for processing
     await loginQueue.add('email-job', { // email-job is the job name
-      email: userData.email,
+      email: email,
       lastLogin: userData.lastLogin,
      }, {
       // jobId: `email-job-${userData.email}`,
@@ -48,7 +47,7 @@ export class AppService {
 
     // Multiple Job name in the same queue
     await loginQueue.add('log-job', { // log-job is the job name
-      email: userData.email,
+      email: email,
       lastLogin: userData.lastLogin,
       }, {
       attempts: 1,
@@ -56,7 +55,7 @@ export class AppService {
 
 
     return {
-      email: userData.email,
+      email: email,
       image: userData.image,
       isAdmin: userData.isAdmin,
       lastLogin: userData.lastLogin,
