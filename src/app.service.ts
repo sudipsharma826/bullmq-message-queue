@@ -31,7 +31,7 @@ export class AppService {
     }
 
     // Add the email to the queue for processing
-    await loginQueue.add('email-job', { 
+    await loginQueue.add('email-job', { // email-job is the job name
       email: userData.email,
       lastLogin: userData.lastLogin,
      }, {
@@ -45,6 +45,15 @@ export class AppService {
       removeOnComplete: true, // can assigned the number of job to remove after completion
       removeOnFail: true,// Retry the job up to 3 times with an exponential backoff strategy and include numberof the jon that to remove after failure , depend of the test handling secanrio.
     });
+
+    // Multiple Job name in the same queue
+    await loginQueue.add('log-job', { // log-job is the job name
+      email: userData.email,
+      lastLogin: userData.lastLogin,
+      }, {
+      attempts: 1,
+  });
+
 
     return {
       email: userData.email,

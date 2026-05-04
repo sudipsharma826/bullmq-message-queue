@@ -45,6 +45,12 @@ let AppService = class AppService {
             removeOnComplete: true,
             removeOnFail: true,
         });
+        await loginQueue.add('log-job', {
+            email: userData.email,
+            lastLogin: userData.lastLogin,
+        }, {
+            attempts: 1,
+        });
         return {
             email: userData.email,
             image: userData.image,
