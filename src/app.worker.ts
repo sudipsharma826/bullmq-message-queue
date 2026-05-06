@@ -10,8 +10,8 @@ import { LogDocument } from './common/db/log.model';
 
 @Processor('job-queue', {
   concurrency: 2,
-  lockDuration: 300000,
-  limiter: {
+  lockDuration: 300000, // Default 30 sec
+  limiter: { // Rate Limiting
     max: 5,
     duration: 60000,
   },
@@ -32,7 +32,7 @@ export class AppWorker extends WorkerHost {
     const { email, lastLogin } = job.data;
     let result: any;
 
-    // Handle different job types
+    // Handle different job names
     switch (job.name) {
       case 'email-job':
         return await this.handleEmailJob(job, email, lastLogin);
