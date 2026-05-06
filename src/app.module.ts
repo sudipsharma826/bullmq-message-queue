@@ -27,15 +27,15 @@ import { LogSchema } from './common/db/log.model';
         connection: {
           url: config.get<string>('REDIS_URL') || 'redis://localhost:6379',
         },
-        defaultJobOptions: {
-          attempts: 3,
+        defaultJobOptions: { // Queue Level Options
+          attempts: 3, // attempts to retires the jobs
           backoff: {
             type: 'exponential',
             delay: 1000,
           },
-          delay: 1000,
-          removeOnComplete: 1000,
-          removeOnFail: 500,
+          delay: 1000, // Time Delay to process jobs in a queue
+          removeOnComplete: 1000, // Keep only 1000 completed jobs, then automatically delete older ones.
+          removeOnFail: 500, // Keep only 500 failed jobs, then delete older failures.
         },
       }),
     }),
