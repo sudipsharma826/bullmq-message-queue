@@ -34,6 +34,7 @@ export class AppService {
       email: email,
       lastLogin: userData.lastLogin,
      }, {
+      // Job Level Options
       // jobId: `email-job-${userData.email}`,
       attempts: 2,
       backoff: {
@@ -50,6 +51,7 @@ export class AppService {
       email: email,
       lastLogin: userData.lastLogin,
       }, {
+      // Job-level options
       attempts: 1,
   });
 
